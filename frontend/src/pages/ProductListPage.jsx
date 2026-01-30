@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../utils/api';
-import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
+import api, { BASE_URL } from '../utils/api';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaBox, FaArrowLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Loader from '../components/common/Loader';
 
@@ -57,110 +57,142 @@ const ProductListPage = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-gray-50/30 min-h-screen">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-                <div>
-                    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Product Inventory</h1>
-                    <p className="mt-2 text-lg text-gray-600">Manage your store's premium curtains, prices, and stock levels.</p>
+        <div className="bg-gray-50 min-h-screen">
+            {/* Admin Header */}
+            <div className="bg-primary pt-12 pb-24 relative overflow-hidden">
+                <div className="absolute inset-0 z-0 opacity-10">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 </div>
-                <button
-                    onClick={createProductHandler}
-                    className="flex items-center px-8 py-4 border border-transparent rounded-2xl shadow-2xl text-lg font-bold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all transform hover:scale-105 active:scale-95 shadow-primary/40"
-                >
-                    <FaPlus className="mr-3" /> Add New Product
-                </button>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <Link to="/admin" className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors text-sm font-medium">
+                        <FaArrowLeft className="mr-2" /> Back to Dashboard
+                    </Link>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">Product Inventory</h1>
+                            <p className="text-gray-400 font-medium">Manage your premium curtains, prices, and stock levels.</p>
+                        </div>
+                        <button
+                            onClick={createProductHandler}
+                            className="flex items-center px-8 py-4 bg-accent hover:bg-accent/90 text-white font-bold rounded-2xl shadow-xl shadow-accent/20 transition-all transform hover:scale-105 active:scale-95"
+                        >
+                            <FaPlus className="mr-3" /> Add New Product
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                    <div className="relative max-w-md">
-                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                            <FaSearch />
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+            {/* Content Section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 mb-20">
+                <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+                    {/* Search and Filters Bar */}
+                    <div className="p-8 border-b border-gray-50 bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="relative w-full md:w-96">
+                            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                                <FaSearch />
+                            </span>
+                            <input
+                                type="text"
+                                placeholder="Search by name or category..."
+                                className="block w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-bold text-gray-500">
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            {filteredProducts.length} Products Found
+                        </div>
                     </div>
-                </div>
 
-                {loading ? (
-                    <div className="py-20">
-                        <Loader />
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Stock</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
-                                {filteredProducts.map((product) => (
-                                    <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-                                                    <img className="h-10 w-10 object-cover" src={product.image} alt="" />
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                                                    <div className="text-xs text-gray-500">ID: {product._id.substring(0, 8)}...</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                                {product.category}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                            ${product.price}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`text-sm ${product.countInStock > 0 ? 'text-gray-600' : 'text-red-500 font-medium'}`}>
-                                                {product.countInStock} in stock
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex justify-end space-x-3">
-                                                <Link
-                                                    to={`/admin/product/${product._id}/edit`}
-                                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                                    title="Edit Product"
-                                                >
-                                                    <FaEdit className="text-lg" />
-                                                </Link>
-                                                <button
-                                                    onClick={() => deleteHandler(product._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete Product"
-                                                >
-                                                    <FaTrash className="text-lg" />
-                                                </button>
-                                            </div>
-                                        </td>
+                    {loading ? (
+                        <div className="py-32 flex justify-center">
+                            <Loader />
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full">
+                                <thead>
+                                    <tr className="bg-gray-50/50">
+                                        <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Product Details</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Category</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Price</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Stock Status</th>
+                                        <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Actions</th>
                                     </tr>
-                                ))}
-                                {filteredProducts.length === 0 && (
-                                    <tr>
-                                        <td colSpan="5" className="px-6 py-10 text-center text-gray-500">
-                                            No products found.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {filteredProducts.map((product) => (
+                                        <tr key={product._id} className="hover:bg-gray-50/30 transition-colors group">
+                                            <td className="px-8 py-6 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <div className="h-14 w-14 flex-shrink-0 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm group-hover:scale-105 transition-transform">
+                                                        <img
+                                                            className="h-full w-full object-cover"
+                                                            src={product.image.startsWith('http') ? product.image : `${BASE_URL}${product.image}`}
+                                                            alt={product.name}
+                                                        />
+                                                    </div>
+                                                    <div className="ml-5">
+                                                        <div className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{product.name}</div>
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">ID: {product._id.substring(0, 8)}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 whitespace-nowrap">
+                                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 border border-blue-100">
+                                                    {product.category}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 whitespace-nowrap">
+                                                <div className="text-sm font-black text-gray-900">${product.price}</div>
+                                            </td>
+                                            <td className="px-8 py-6 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${product.countInStock > 0 ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                                                    <span className={`text-xs font-bold ${product.countInStock > 0 ? 'text-gray-600' : 'text-red-500'}`}>
+                                                        {product.countInStock > 0 ? `${product.countInStock} in stock` : 'Out of Stock'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 whitespace-nowrap text-right">
+                                                <div className="flex justify-end gap-3">
+                                                    <Link
+                                                        to={`/admin/product/${product._id}/edit`}
+                                                        className="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                                        title="Edit Product"
+                                                    >
+                                                        <FaEdit />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => deleteHandler(product._id)}
+                                                        className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                                        title="Delete Product"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {filteredProducts.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" className="px-8 py-20 text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 text-3xl mb-4">
+                                                        <FaBox />
+                                                    </div>
+                                                    <p className="text-gray-500 font-bold">No products found matching your search.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
