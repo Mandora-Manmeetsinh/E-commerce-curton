@@ -1,14 +1,11 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import CartContext from '../context/CartContext';
-import AuthContext from '../context/AuthContext';
 import Button from '../components/common/Button';
 
 const CheckoutPage = () => {
-    const { cartItems, clearCart } = useContext(CartContext);
-    const { user } = useContext(AuthContext);
+    const [cartItems, setCartItems] = useState([]);
     const navigate = useNavigate();
 
     const [address, setAddress] = useState('');

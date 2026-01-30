@@ -13,7 +13,7 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const whatsappNumber = '1234567890'; // Replace with actual number
+    const whatsappNumber = '+1234567890'; // Placeholder - Update with actual business number
 
     useEffect(() => {
         const fetchProduct = async () => {

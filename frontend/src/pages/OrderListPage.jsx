@@ -1,26 +1,22 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { FaTimes } from 'react-icons/fa';
-import AuthContext from '../context/AuthContext';
+import api from '../utils/api';
 
 const OrderListPage = () => {
     const [orders, setOrders] = useState([]);
-    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-            const { data } = await axios.get('http://localhost:5000/api/orders', config);
-            setOrders(data);
+            try {
+                const { data } = await api.get('/orders');
+                setOrders(data);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
         };
 
         fetchOrders();
-    }, [user]);
+    }, []);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

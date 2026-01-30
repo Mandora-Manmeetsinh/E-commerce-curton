@@ -1,11 +1,10 @@
-import { useContext } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaArrowRight } from 'react-icons/fa';
-import CartContext from '../context/CartContext';
 import Button from '../components/common/Button';
 
 const CartPage = () => {
-    const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
+    const [cartItems, setCartItems] = useState([]);
     const navigate = useNavigate();
 
     const checkoutHandler = () => {
